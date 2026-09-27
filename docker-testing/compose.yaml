@@ -1,0 +1,52 @@
+# docker pull nginx:1.27
+# docker run -d --name web -p 8080:80 nginx:1.27
+# #          │   │          └ host port 8080 → container port 80
+# #          │   └ name so you don't use random IDs
+# #          └ detached: run in background
+
+# docker ps                                  
+# # running containers
+
+# docker ps -a                               
+# # include stopped
+
+# docker logs -f web                         
+# # follow output
+
+# docker exec -it web sh                     
+# # shell INSIDE container
+
+# docker stop web && docker rm web           
+# # stop, delete
+
+# docker images
+# # local images 
+
+
+services:
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: devpass
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  pg_data:
+
+  # docker compose up -d        
+  # # start all
+  # docker compose ps           
+  # # status + health
+  # docker compose logs -f db   
+  # # logs of one service
+  # docker compose down         
+  # # stop + remove containers (volumes kept)
+  # docker compose down -v   
+  #    # ALSO deletes volumes = data gone

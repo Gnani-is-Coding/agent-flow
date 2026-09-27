@@ -1,0 +1,7 @@
+{
+  "name": "agentflow",
+  "version": "1.0.0",
+  "description": "This is a human description to automations pipeline.",
+  "main": "index.js",
+  "license": "MIT"
+}
