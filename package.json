@@ -3,5 +3,7 @@
   "version": "1.0.0",
   "description": "This is a human description to automations pipeline.",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true,
+  "workspaces": ["server", "client"]
 }
