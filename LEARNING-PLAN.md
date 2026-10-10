@@ -12,7 +12,9 @@ Rules of the road:
 
 - [x] **TypeScript** on client and server. Spec's `.js` file names become `.ts` / `.tsx`.
 - [x] **Monorepo:** `client/` (Next.js) + `server/` (Express) in this repo. Spec's folder-structure section got mangled when pasted (line 130-137), so we define it ourselves in M1/M4.
-- [x] **Docker** for local MongoDB + Redis.
+- [x] **Docker** for local Postgres (was MongoDB) + Redis.
+- [x] **Postgres + Prisma** instead of spec's MongoDB + Mongoose (data is relational; graph, snapshots, log metadata go in JSONB). No in-memory DB fallback.
+- [x] **Yarn (v1) workspaces** as package manager. No npm lockfiles.
 - [x] **v1 = Discord only.** Slack, Google Sheets, Gmail move to v2 (after M15).
 
 ---
@@ -60,16 +62,16 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 ## M1 — Express server skeleton
 
 **Learn**
-- [ ] Express: app, router, middleware chain, `next()`, error middleware (4 args)
-- [ ] Layered architecture: routes → controllers → services → models (spec line 52). Why controllers never touch Mongo.
-- [ ] helmet, cors, morgan, compression — what each one does
-- [ ] Validating env vars at startup (fail fast if `JWT_SECRET` missing)
+- [x] Express: app, router, middleware chain, `next()`, error middleware (4 args)
+- [x] Layered architecture: routes → controllers → services → models (spec line 52). Why controllers never touch the database.
+- [x] helmet, cors, morgan, compression — what each one does
+- [x] Validating env vars at startup (fail fast if `JWT_SECRET` missing)
 
 **Build**
-- [ ] `server/src/config/env.ts` — load + validate env
-- [ ] `server/src/app.ts` with helmet, cors (only `CLIENT_URL`), morgan, compression, JSON body parser
-- [ ] Central error handler + one error class with `code` and `status`
-- [ ] `GET /api/health` → uptime, status, env name
+- [x] `server/src/config/env.ts` — load + validate env
+- [x] `server/src/app.ts` with helmet, cors (only `CLIENT_URL`), morgan, compression, JSON body parser
+- [x] Central error handler + one error class with `code` and `status`
+- [x] `GET /api/health` → uptime, status, env name
 
 **Done when:** `curl localhost:4000/api/health` returns JSON; unknown route returns clean 404 JSON; server refuses to boot with a missing required env var.
 
@@ -77,21 +79,23 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 ---
 
-## M2 — MongoDB + Mongoose
+## M2 — Data model + Postgres + Prisma
 
 **Learn**
-- [ ] Documents vs rows, collections, `_id`, ObjectId
-- [ ] Mongoose: schema, model, validators, `timestamps`, `ref` + `populate`, indexes
-- [ ] `select: false` (hides password by default)
-- [ ] `mongodb-memory-server` for the in-memory fallback + tests
+- [ ] SQL basics: tables, primary/foreign keys, `JOIN`, `GROUP BY`, constraints, indexes, transactions
+- [ ] `ON DELETE` options (CASCADE, SET NULL, RESTRICT); soft delete via status
+- [ ] JSONB: when a column should be JSON instead of its own table
+- [ ] Prisma: `schema.prisma`, models, relations, enums, `@unique`, `@@unique`, migrations, generated client, `select`/`omit`
 
 **Build**
-- [ ] `config/db.ts` — connect to `MONGO_URI`, fall back to in-memory if not set
-- [ ] `User` model: name, email (unique, lowercase), password (`select: false`), role (`admin|operator`), lastLoginAt
+- [ ] Finish ER diagram (in progress — see memory `agentflow-data-model`)
+- [ ] Swap `mongo:7` for `postgres:17` in `docker-compose.yaml`
+- [ ] `schema.prisma` for User first, first migration
+- [ ] Prisma client singleton in `config/db.ts`
 
-**Done when:** you can create a user in a script, and `User.findOne()` does NOT return the password unless you ask with `.select('+password')`.
+**Done when:** a script creates a user, and the default query shape never returns the password hash.
 
-**Gate:** When would you embed vs reference? What does a unique index protect you from that app code can't? What's `populate` doing under the hood?
+**Gate:** When JSONB vs a separate table? What does a unique constraint protect you from that app code can't? What does a migration actually do to the database?
 
 ---
 
@@ -143,10 +147,10 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Learn**
 - [ ] Graphs: node, edge, directed, DAG, cycle — this is the heart of the whole app
-- [ ] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in Mongo
+- [ ] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in a JSONB column
 - [ ] Ownership checks (user A must never read user B's workflow)
-- [ ] Pagination, filtering, sorting in Mongo
-- [ ] Aggregation pipeline (`$match`, `$group`) for dashboard metrics
+- [ ] Pagination, filtering, sorting with Prisma
+- [ ] SQL `COUNT` + `GROUP BY` (Prisma `groupBy`) for dashboard metrics
 
 **Build**
 - [ ] `Workflow` model: name, description, owner, status, trigger, nodes, edges, tags, version, lastExecutedAt
@@ -344,7 +348,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 - [ ] Security checklist (spec line 155) — go through each line
 - [ ] Test coverage, what's worth testing
 - [ ] Playwright E2E for the ONE critical flow
-- [ ] Deploy: frontend (Vercel), backend (Render/Railway/Fly), Mongo Atlas, Upstash Redis
+- [ ] Deploy: frontend (Vercel), backend (Render/Railway/Fly), managed Postgres (Neon/Supabase), Upstash Redis
 
 **Build**
 - [ ] Grep logs for any token leak
@@ -362,7 +366,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 |---|---|
 | M0 Foundations | done |
 | M1 Express | ☐ |
-| M2 Mongo | ☐ |
+| M2 Postgres + Prisma | ☐ |
 | M3 Auth | ☐ |
 | M4 Next.js | ☐ |
 | M5 Workflow CRUD | ☐ |
