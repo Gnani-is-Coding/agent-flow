@@ -37,7 +37,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 ---
 
-## M0 — Foundations
+## ~~M0 — Foundations~~
 
 **Learn**
 - [x] HTTP: methods, status codes, headers, request/response body
@@ -59,7 +59,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 ---
 
-## M1 — Express server skeleton
+## ~~M1 — Express server skeleton~~
 
 **Learn**
 - [x] Express: app, router, middleware chain, `next()`, error middleware (4 args)
@@ -82,16 +82,16 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 ## M2 — Data model + Postgres + Prisma
 
 **Learn**
-- [ ] SQL basics: tables, primary/foreign keys, `JOIN`, `GROUP BY`, constraints, indexes, transactions
-- [ ] `ON DELETE` options (CASCADE, SET NULL, RESTRICT); soft delete via status
-- [ ] JSONB: when a column should be JSON instead of its own table
-- [ ] Prisma: `schema.prisma`, models, relations, enums, `@unique`, `@@unique`, migrations, generated client, `select`/`omit`
+- [x] SQL basics: tables, primary/foreign keys, `JOIN`, `GROUP BY`, constraints, indexes, transactions
+- [x] `ON DELETE` options (CASCADE, SET NULL, RESTRICT); soft delete via status
+- [x] JSONB: when a column should be JSON instead of its own table
+- [x] Prisma: `schema.prisma`, models, relations, enums, `@unique`, `@@unique`, migrations, generated client, `select`/`omit`
 
 **Build**
-- [ ] Finish ER diagram (in progress — see memory `agentflow-data-model`)
-- [ ] Swap `mongo:7` for `postgres:17` in `docker-compose.yaml`
-- [ ] `schema.prisma` for User first, first migration
-- [ ] Prisma client singleton in `config/db.ts`
+- [x] Finish ER diagram (in progress — see memory `agentflow-data-model`)
+- [x] Swap `mongo:7` for `postgres:17` in `docker-compose.yaml`
+- [x] `schema.prisma` for User first, first migration
+- [x] Prisma client singleton in `config/db.ts`
 
 **Done when:** a script creates a user, and the default query shape never returns the password hash.
 
