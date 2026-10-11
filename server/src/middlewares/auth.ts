@@ -1,15 +1,8 @@
 import type { NextFunction, Response, Request } from "express"
-import jwt from "jsonwebtoken"
-import { z } from "zod"
 import { HttpError } from "../helpers/errorHelpers.js"
-import { env } from "../config/env.js"
-
-const tokenPayloadSchema = z.object({
-    id: z.string(),
-    role: z.enum(["admin", "operator"]),
-})
-
-export type AuthUser = z.infer<typeof tokenPayloadSchema>
+import { verifyToken } from "../helpers/tokens.js"
+import { ACCESS_COOKIE } from "../helpers/authCookies.js"
+import type { AuthUser } from "../types/auth.types.js"
 
 declare global {
     namespace Express {
@@ -19,15 +12,11 @@ declare global {
     }
 }
 
+// access token only; an expired one gets a 401 and the client calls /rotate
 export function auth(req: Request, _res: Response, next: NextFunction): void {
-    const [scheme, token] = req.headers.authorization?.split(" ") ?? []
-    if (scheme !== "Bearer" || !token) throw new HttpError(401, "Missing or malformed token")
+    const token: unknown = req.cookies?.[ACCESS_COOKIE]
+    if (typeof token !== "string") throw new HttpError(401, "Not authenticated")
 
-    try {
-        const payload = jwt.verify(token, env.JWT_SECRET, { algorithms: ["HS256"] })
-        req.user = tokenPayloadSchema.parse(payload)
-    } catch (e: unknown) {
-        throw new HttpError(401, e instanceof jwt.TokenExpiredError ? "Token expired" : "Invalid token")
-    }
+    req.user = verifyToken(token, "access")
     next()
 }

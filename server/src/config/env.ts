@@ -6,7 +6,11 @@ const envSchema = z.object({
     ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(",").map((origin) => origin.trim())),
     MORGAN_LOG_FORMAT: z.string().default("dev"),
     DATABASE_URL: z.url(),
-    JWT_SECRET: z.string().min(2, "must be at least 2 characters"),
+    JWT_SECRET: z.string().min(32, "must be at least 32 characters"),
+    ACCESS_TOKEN_TTL_MINUTES: z.coerce.number().int().positive().default(15),
+    REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
+    AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+    AUTH_RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().int().positive().default(15),
 })
 
 const parsed = envSchema.safeParse(process.env)
