@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  RETRYING
+  PAUSED
+  CANCELLED
+}
+
+enum AgentType {
+  PLANNER
+  EXECUTION
+  VALIDATION
+  RECOVERY
+  MONITORING
+}
+
+enum LogLevel {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+enum ToolProvider {
+  GMAIL
+  SLACK
+  DISCORD
+}
+
+enum NotificationType {
+  SUCCESS
+  FAILURE
+  ESCALATION
+}
+
+model User {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(OPERATOR)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  workflows       Workflow[]
+  toolConnections ToolConnection[]
+  notifications   Notification[]
+}
+
+model Workflow {
+  id             String         @id @default(uuid(7)) @db.Uuid
+  userId         String         @db.Uuid
+  name           String
+  description    String?
+  status         WorkflowStatus @default(DRAFT)
+  trigger        Json
+  nodes          Json
+  edges          Json
+  version        Int            @default(1)
+  versionHistory Json           @default("[]")
+  lastRunAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  executions    Execution[]
+  agentMemories AgentMemory[]
+
+  @@index([userId, status])
+}
+
+model Execution {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  workflowId      String          @db.Uuid
+  workflowVersion Int
+  snapshot        Json
+  status          ExecutionStatus @default(PENDING)
+  currentNodeId   String?
+  input           Json?
+  output          Json?
+  error           Json?
+  retryCount      Int             @default(0)
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime        @default(now())
+
+  workflow      Workflow       @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  logs          ExecutionLog[]
+  agentMemories AgentMemory[]
+  notifications Notification[]
+
+  @@index([workflowId, status])
+}
+
+model ExecutionLog {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  executionId String    @db.Uuid
+  nodeId      String?
+  agent       AgentType
+  level       LogLevel
+  eventType   String
+  message     String
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  execution Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId, createdAt])
+}
+
+model AgentMemory {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  workflowId  String    @db.Uuid
+  executionId String?   @db.Uuid
+  agent       AgentType
+  key         String
+  value       Json
+  confidence  Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workflow  Workflow   @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  // SetNull: workflow-level lessons must outlive the run that learned them
+  execution Execution? @relation(fields: [executionId], references: [id], onDelete: SetNull)
+
+  @@unique([workflowId, agent, key])
+}
+
+model ToolConnection {
+  id           String       @id @default(uuid(7)) @db.Uuid
+  userId       String       @db.Uuid
+  provider     ToolProvider
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  scope        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+}
+
+model Notification {
+  id          String           @id @default(uuid(7)) @db.Uuid
+  userId      String           @db.Uuid
+  executionId String?          @db.Uuid
+  type        NotificationType
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  execution Execution? @relation(fields: [executionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+}
