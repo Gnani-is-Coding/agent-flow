@@ -112,22 +112,22 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 ---
 
 <details>
-<summary><b>M3 — Authentication</b></summary>
+<summary><b><s>M3 — Authentication</s></b></summary>
 
 
 **Learn**
-- [ ] Hashing vs encryption. Why bcrypt, what "cost 12" means, what a salt is
-- [ ] JWT: header/payload/signature, what's safe to put in the payload, expiry
-- [ ] Auth middleware: read `Authorization: Bearer`, verify, attach `req.user`
-- [ ] Role check middleware (admin vs operator)
-- [ ] express-validator, express-rate-limit
-- [ ] Testing APIs with Jest/Vitest + supertest
+- [x] Hashing vs encryption. Why bcrypt, what "cost 12" means, what a salt is
+- [x] JWT: header/payload/signature, what's safe to put in the payload, expiry
+- [x] Auth middleware: read `Authorization: Bearer`, verify, attach `req.user`
+- [x] Role check middleware (admin vs operator)
+- [x] express-validator, express-rate-limit
+- [x] Testing APIs with Jest/Vitest + supertest
 
 **Build**
-- [ ] `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
-- [ ] `requireAuth`, `requireRole` middleware
-- [ ] Rate limit on auth routes
-- [ ] Tests: register, duplicate email, wrong password, `/me` with/without token
+- [x] `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- [x] `requireAuth`, `requireRole` middleware
+- [x] Rate limit on auth routes
+- [x] Tests: register, duplicate email, wrong password, `/me` with/without token
 
 **Done when:** all auth tests pass; login with wrong password and wrong email return the SAME error message.
 
@@ -431,7 +431,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 | M0 Foundations | done |
 | M1 Express | done |
 | M2 Postgres + Prisma | done |
-| M3 Auth | ☐ |
+| M3 Auth | done |
 | M4 Next.js | ☐ |
 | M5 Workflow CRUD | ☐ |
 | M6 Canvas | ☐ |
