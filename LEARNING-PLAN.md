@@ -12,7 +12,9 @@ Rules of the road:
 
 - [x] **TypeScript** on client and server. Spec's `.js` file names become `.ts` / `.tsx`.
 - [x] **Monorepo:** `client/` (Next.js) + `server/` (Express) in this repo. Spec's folder-structure section got mangled when pasted (line 130-137), so we define it ourselves in M1/M4.
-- [x] **Docker** for local MongoDB + Redis.
+- [x] **Docker** for local Postgres (was MongoDB) + Redis.
+- [x] **Postgres + Prisma** instead of spec's MongoDB + Mongoose (data is relational; graph, snapshots, log metadata go in JSONB). No in-memory DB fallback.
+- [x] **Yarn (v1) workspaces** as package manager. No npm lockfiles.
 - [x] **v1 = Discord only.** Slack, Google Sheets, Gmail move to v2 (after M15).
 
 ---
@@ -35,7 +37,9 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 ---
 
-## M0 — Foundations
+<details>
+<summary><b><s>M0 — Foundations</s></b></summary>
+
 
 **Learn**
 - [x] HTTP: methods, status codes, headers, request/response body
@@ -55,69 +59,87 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** What's the difference between 401 and 403? Why is PUT idempotent but POST isn't? What happens if you `await` inside a `forEach`?
 
+</details>
+
 ---
 
-## M1 — Express server skeleton
+<details>
+<summary><b><s>M1 — Express server skeleton</s></b></summary>
+
 
 **Learn**
-- [ ] Express: app, router, middleware chain, `next()`, error middleware (4 args)
-- [ ] Layered architecture: routes → controllers → services → models (spec line 52). Why controllers never touch Mongo.
-- [ ] helmet, cors, morgan, compression — what each one does
-- [ ] Validating env vars at startup (fail fast if `JWT_SECRET` missing)
+- [x] Express: app, router, middleware chain, `next()`, error middleware (4 args)
+- [x] Layered architecture: routes → controllers → services → models (spec line 52). Why controllers never touch the database.
+- [x] helmet, cors, morgan, compression — what each one does
+- [x] Validating env vars at startup (fail fast if `JWT_SECRET` missing)
 
 **Build**
-- [ ] `server/src/config/env.ts` — load + validate env
-- [ ] `server/src/app.ts` with helmet, cors (only `CLIENT_URL`), morgan, compression, JSON body parser
-- [ ] Central error handler + one error class with `code` and `status`
-- [ ] `GET /api/health` → uptime, status, env name
+- [x] `server/src/config/env.ts` — load + validate env
+- [x] `server/src/app.ts` with helmet, cors (only `CLIENT_URL`), morgan, compression, JSON body parser
+- [x] Central error handler + one error class with `code` and `status`
+- [x] `GET /api/health` → uptime, status, env name
 
 **Done when:** `curl localhost:4000/api/health` returns JSON; unknown route returns clean 404 JSON; server refuses to boot with a missing required env var.
 
 **Gate:** Order of middleware — why does the error handler go last? What does helmet actually set? What's the job of a controller vs a service?
 
----
-
-## M2 — MongoDB + Mongoose
-
-**Learn**
-- [ ] Documents vs rows, collections, `_id`, ObjectId
-- [ ] Mongoose: schema, model, validators, `timestamps`, `ref` + `populate`, indexes
-- [ ] `select: false` (hides password by default)
-- [ ] `mongodb-memory-server` for the in-memory fallback + tests
-
-**Build**
-- [ ] `config/db.ts` — connect to `MONGO_URI`, fall back to in-memory if not set
-- [ ] `User` model: name, email (unique, lowercase), password (`select: false`), role (`admin|operator`), lastLoginAt
-
-**Done when:** you can create a user in a script, and `User.findOne()` does NOT return the password unless you ask with `.select('+password')`.
-
-**Gate:** When would you embed vs reference? What does a unique index protect you from that app code can't? What's `populate` doing under the hood?
+</details>
 
 ---
 
-## M3 — Authentication
+<details>
+<summary><b><s>M2 — Data model + Postgres + Prisma</s></b></summary>
+
 
 **Learn**
-- [ ] Hashing vs encryption. Why bcrypt, what "cost 12" means, what a salt is
-- [ ] JWT: header/payload/signature, what's safe to put in the payload, expiry
-- [ ] Auth middleware: read `Authorization: Bearer`, verify, attach `req.user`
-- [ ] Role check middleware (admin vs operator)
-- [ ] express-validator, express-rate-limit
-- [ ] Testing APIs with Jest/Vitest + supertest
+- [x] SQL basics: tables, primary/foreign keys, `JOIN`, `GROUP BY`, constraints, indexes, transactions
+- [x] `ON DELETE` options (CASCADE, SET NULL, RESTRICT); soft delete via status
+- [x] JSONB: when a column should be JSON instead of its own table
+- [x] Prisma: `schema.prisma`, models, relations, enums, `@unique`, `@@unique`, migrations, generated client, `select`/`omit`
 
 **Build**
-- [ ] `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
-- [ ] `requireAuth`, `requireRole` middleware
-- [ ] Rate limit on auth routes
-- [ ] Tests: register, duplicate email, wrong password, `/me` with/without token
+- [x] Finish ER diagram (in progress — see memory `agentflow-data-model`)
+- [x] Swap `mongo:7` for `postgres:17` in `docker-compose.yaml`
+- [x] `schema.prisma` for User first, first migration
+- [x] Prisma client singleton in `config/db.ts`
+
+**Done when:** a script creates a user, and the default query shape never returns the password hash.
+
+**Gate:** When JSONB vs a separate table? What does a unique constraint protect you from that app code can't? What does a migration actually do to the database?
+
+</details>
+
+---
+
+<details>
+<summary><b><s>M3 — Authentication</s></b></summary>
+
+
+**Learn**
+- [x] Hashing vs encryption. Why bcrypt, what "cost 12" means, what a salt is
+- [x] JWT: header/payload/signature, what's safe to put in the payload, expiry
+- [x] Auth middleware: read `Authorization: Bearer`, verify, attach `req.user`
+- [x] Role check middleware (admin vs operator)
+- [x] express-validator, express-rate-limit
+- [x] Testing APIs with Jest/Vitest + supertest
+
+**Build**
+- [x] `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+- [x] `requireAuth`, `requireRole` middleware
+- [x] Rate limit on auth routes
+- [x] Tests: register, duplicate email, wrong password, `/me` with/without token
 
 **Done when:** all auth tests pass; login with wrong password and wrong email return the SAME error message.
 
 **Gate:** Why same error for wrong email vs wrong password? Can you "log out" a JWT server-side? Where should the client store the token and what's the risk of each option?
 
+</details>
+
 ---
 
-## M4 — Next.js frontend skeleton
+<details>
+<summary><b>M4 — Next.js frontend skeleton</b></summary>
+
 
 **Learn**
 - [ ] Next.js Pages Router: file-based routes, `_app.tsx`, dynamic routes `[id].tsx`
@@ -137,16 +159,20 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Why does persisted Zustand state cause a "flash" on first render, and how do you fix it? What does an Axios response interceptor let you avoid repeating?
 
+</details>
+
 ---
 
-## M5 — Workflow data model + CRUD
+<details>
+<summary><b>M5 — Workflow data model + CRUD</b></summary>
+
 
 **Learn**
 - [ ] Graphs: node, edge, directed, DAG, cycle — this is the heart of the whole app
-- [ ] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in Mongo
+- [ ] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in a JSONB column
 - [ ] Ownership checks (user A must never read user B's workflow)
-- [ ] Pagination, filtering, sorting in Mongo
-- [ ] Aggregation pipeline (`$match`, `$group`) for dashboard metrics
+- [ ] Pagination, filtering, sorting with Prisma
+- [ ] SQL `COUNT` + `GROUP BY` (Prisma `groupBy`) for dashboard metrics
 
 **Build**
 - [ ] `Workflow` model: name, description, owner, status, trigger, nodes, edges, tags, version, lastExecutedAt
@@ -159,9 +185,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** How do you detect a cycle? Why return 404 (not 403) for someone else's workflow? What's the risk of storing `version` without checking it on update?
 
+</details>
+
 ---
 
-## M6 — React Flow canvas
+<details>
+<summary><b>M6 — React Flow canvas</b></summary>
+
 
 **Learn**
 - [ ] React Flow: `ReactFlow`, `useNodesState`/`useEdgesState`, `onConnect`, custom node types, animated edges
@@ -178,9 +208,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Why drive the config panel from the node catalog instead of hardcoding forms per node? What breaks if node IDs aren't unique?
 
+</details>
+
 ---
 
-## M7 — LLMs + AI workflow generation
+<details>
+<summary><b>M7 — LLMs + AI workflow generation</b></summary>
+
 
 **Learn**
 - [ ] What an LLM API call is: messages (system/user/assistant), tokens, temperature, cost
@@ -199,9 +233,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Why build the rule-based one first? What do you do if the LLM returns a node type that isn't in your catalog? Why low temperature here?
 
+</details>
+
 ---
 
-## M8 — Execution engine (no agents yet)
+<details>
+<summary><b>M8 — Execution engine (no agents yet)</b></summary>
+
 
 **Learn**
 - [ ] State machines: PENDING → RUNNING → COMPLETED/FAILED, plus RETRYING, PAUSED, CANCELLED. Draw the allowed transitions.
@@ -219,9 +257,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Why snapshot instead of referencing the live workflow? Where in the loop does the runner check for pause? What happens to a node that's mid-call when you cancel?
 
+</details>
+
 ---
 
-## M9 — Agents, built by hand
+<details>
+<summary><b>M9 — Agents, built by hand</b></summary>
+
 
 **Learn**
 - [ ] What "agent" means in general (LLM + tools + loop) vs what it means here (specialized step in a pipeline)
@@ -241,9 +283,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Why is RATE_LIMIT retryable but MISSING_FIELDS not? Why jitter? What does the orchestrator own that no single agent owns?
 
+</details>
+
 ---
 
-## M10 — LangChain + LangGraph
+<details>
+<summary><b>M10 — LangChain + LangGraph</b></summary>
+
 
 **Learn**
 - [ ] **LangChain** = building blocks for LLM apps: chat models, prompt templates, output parsers, tools. Think "nice wrapper around LLM calls".
@@ -261,9 +307,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** What does LangGraph give you that your hand-rolled loop didn't? When is LangChain overkill? How does a conditional edge replace an `if` in your orchestrator?
 
+</details>
+
 ---
 
-## M11 — Real-time with Socket.IO
+<details>
+<summary><b>M11 — Real-time with Socket.IO</b></summary>
+
 
 **Learn**
 - [ ] HTTP polling vs WebSockets; what Socket.IO adds (rooms, reconnect, fallbacks)
@@ -282,9 +332,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** What happens to events emitted before the client joins the room — how do you avoid missing them? Why persist a notification before emitting it?
 
+</details>
+
 ---
 
-## M12 — Background queues with BullMQ
+<details>
+<summary><b>M12 — Background queues with BullMQ</b></summary>
+
 
 **Learn**
 - [ ] Why background jobs: HTTP request shouldn't wait for a 30s workflow
@@ -302,9 +356,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Recovery agent retries AND BullMQ retries — who owns what, so you don't retry 3x3=9 times? What's lost with the in-memory fallback?
 
+</details>
+
 ---
 
-## M13 — Integrations + OAuth
+<details>
+<summary><b>M13 — Integrations + OAuth</b></summary>
+
 
 **Learn**
 - [ ] OAuth 2.0 Authorization Code flow, step by step: start → provider consent → callback with code → exchange for tokens
@@ -325,9 +383,13 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Gate:** Walk through OAuth code flow from memory. What attack does `state` stop? Why must the IV be random per encryption? Where could a decrypted token accidentally leak?
 
+</details>
+
 ---
 
-## M14 — Remaining pages + polish
+<details>
+<summary><b>M14 — Remaining pages + polish</b></summary>
+
 
 - [ ] `/settings`: profile, role, API-key status, encryption-key health, logout
 - [ ] `/` landing page
@@ -336,15 +398,19 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Done when:** every page in the spec works on a phone-width screen.
 
+</details>
+
 ---
 
-## M15 — Hardening + ship
+<details>
+<summary><b>M15 — Hardening + ship</b></summary>
+
 
 **Learn**
 - [ ] Security checklist (spec line 155) — go through each line
 - [ ] Test coverage, what's worth testing
 - [ ] Playwright E2E for the ONE critical flow
-- [ ] Deploy: frontend (Vercel), backend (Render/Railway/Fly), Mongo Atlas, Upstash Redis
+- [ ] Deploy: frontend (Vercel), backend (Render/Railway/Fly), managed Postgres (Neon/Supabase), Upstash Redis
 
 **Build**
 - [ ] Grep logs for any token leak
@@ -354,6 +420,8 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 **Done when:** the spec's "Final Expected Outcome" (line 158) works on the deployed URL.
 
+</details>
+
 ---
 
 ## Progress
@@ -361,9 +429,9 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 | Milestone | Status |
 |---|---|
 | M0 Foundations | done |
-| M1 Express | ☐ |
-| M2 Mongo | ☐ |
-| M3 Auth | ☐ |
+| M1 Express | done |
+| M2 Postgres + Prisma | done |
+| M3 Auth | done |
 | M4 Next.js | ☐ |
 | M5 Workflow CRUD | ☐ |
 | M6 Canvas | ☐ |
