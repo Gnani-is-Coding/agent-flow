@@ -31,7 +31,9 @@ async function register({ name, email, password }: RegisterPayload): Promise<Aut
 
 async function login({ email, password }: LoginPayload): Promise<AuthResult> {
     const found = await prisma.user.findUnique({ where: { email }, omit: { passwordHash: false } })
+
     const isValid = await bcrypt.compare(password, found?.passwordHash ?? DUMMY_HASH)
+    
     if (!found || !isValid) throw new HttpError(401, INVALID_CREDENTIALS)
 
     const user = await prisma.user.update({ where: { id: found.id }, data: { lastLoginAt: new Date() } })

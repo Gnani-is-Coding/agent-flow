@@ -32,18 +32,20 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(compression()) // helps in compressing text based(HTML, CSS, JSON, JS) payloads using Gzip.
 app.use(morgan(env.MORGAN_LOG_FORMAT)) //logging setup
+// can also use winston for logging.
+// A Worker to stream the logs to a Diagnostic Channel, and gets written into the path specificed.
 
 
 // routes
 app.use(AUTH_BASE_PATH, AuthRouter)
 
 app.get("/api/health-check", (_, res) => {
-    return res.status(200).send({message: "Healthy", env: env.ENV})
+    return res.status(200).send({ message: "Healthy", env: env.ENV })
 })
 
 
 // Why is this registered after all the routes ?
 // Express sets middlewares top to bottom.
-app.use(errorHandler)
+app.use(errorHandler) //Global Error handler.
 
 export default app
