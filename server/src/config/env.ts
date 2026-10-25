@@ -11,6 +11,7 @@ const envSchema = z.object({
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
     AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
     AUTH_RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().int().positive().default(15),
+    hostname: z.string(),
 })
 
 const parsed = envSchema.safeParse(process.env)

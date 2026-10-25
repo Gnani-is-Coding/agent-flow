@@ -138,7 +138,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 ---
 
 <details>
-<summary><b>M4 — Next.js frontend skeleton</b></summary>
+<summary><b><s>M4 — Next.js frontend skeleton</s></b></summary>
 
 
 **Learn**
@@ -149,11 +149,11 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 - [ ] Axios instance + interceptors (attach token, handle 401 globally)
 
 **Build**
-- [ ] `lib/api.ts` (Axios + interceptors), `store/authStore.ts` (persisted)
-- [ ] `/login`, `/register` with validation, loading, error states
-- [ ] Route guard: protected pages redirect to `/login`
-- [ ] `/` redirects based on auth state
-- [ ] `AppShell` layout (sidebar + header)
+- [x] `lib/api.ts` (Axios + interceptors), `store/authStore.ts` (persisted)
+- [x] `/login`, `/register` with validation, loading, error states
+- [x] Route guard: protected pages redirect to `/login`
+- [x] `/` redirects based on auth state
+- [x] `AppShell` layout (sidebar + header)
 
 **Done when:** register → land on dashboard → refresh page → still logged in → token expires → bounced to login.
 
@@ -432,7 +432,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 | M1 Express | done |
 | M2 Postgres + Prisma | done |
 | M3 Auth | done |
-| M4 Next.js | ☐ |
+| M4 Next.js | done |
 | M5 Workflow CRUD | ☐ |
 | M6 Canvas | ☐ |
 | M7 AI generation | ☐ |
