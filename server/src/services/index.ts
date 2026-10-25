@@ -1,7 +1,7 @@
-import { auth } from "./auth.service.js";
-
-
+import { auth } from "./auth.service.js"
+import { workflow } from "./workflow.service.js"
 
 export const Services = {
-    auth
+    auth,
+    workflow,
 }

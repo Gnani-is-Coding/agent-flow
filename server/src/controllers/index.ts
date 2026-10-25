@@ -1,7 +1,9 @@
 import { AuthController } from "./auth.controller.js"
+import { WorkflowController } from "./workflow.controller.js"
 
 const Controllers = {
-    AuthController
+    AuthController,
+    WorkflowController,
 }
 
 export default Controllers

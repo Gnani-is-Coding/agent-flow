@@ -8,6 +8,7 @@ import { errorHandler } from "./middlewares/GlobalErrorhandler.js";
 import { env } from "./config/env.js";
 import AuthRouter from "./routes/auth.routes.js";
 import { AUTH_BASE_PATH } from "./helpers/authCookies.js";
+import WorkflowRouter, { WORKFLOWS_BASE_PATH } from "./routes/workflow.routes.js";
 
 const app = express()
 
@@ -38,6 +39,7 @@ app.use(morgan(env.MORGAN_LOG_FORMAT)) //logging setup
 
 // routes
 app.use(AUTH_BASE_PATH, AuthRouter)
+app.use(WORKFLOWS_BASE_PATH, WorkflowRouter)
 
 app.get("/api/health-check", (_, res) => {
     return res.status(200).send({ message: "Healthy", env: env.ENV })

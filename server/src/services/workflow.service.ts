@@ -24,7 +24,7 @@ async function list(userId: string, { page, limit, status, search, sort, order }
         ...(search && { name: { contains: search, mode: "insensitive" } }),
     }
 
-    const [items, total] = await prisma.$transaction([
+    const [items, total] = await Promise.all([
         prisma.workflow.findMany({ where, orderBy: { [sort]: order }, skip: (page - 1) * limit, take: limit }),
         prisma.workflow.count({ where }),
     ])
