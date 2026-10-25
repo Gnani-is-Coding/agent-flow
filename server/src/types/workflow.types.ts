@@ -13,7 +13,7 @@ export const nodeSchema = z.object({
     id: idSchema,
     type: idSchema,
     position: z.object({ x: z.number(), y: z.number() }),
-    data: z.record(z.string(), z.unknown()),
+    data: z.record(z.string(), z.json()),
 })
 
 export const edgeSchema = z.object({
@@ -26,7 +26,7 @@ const workflowFields = z.object({
     name: z.string().trim().min(1).max(100),
     description: z.string().trim().max(500).optional(),
     status: z.enum(WorkflowStatus),
-    trigger: z.record(z.string(), z.unknown()),
+    trigger: z.record(z.string(), z.json()),
     nodes: z.array(nodeSchema),
     edges: z.array(edgeSchema),
     tags: z.array(z.string().trim().min(1).max(30)).max(20),
@@ -56,6 +56,12 @@ export type WorkflowEdge = z.infer<typeof edgeSchema>
 export type CreateWorkflowPayload = z.infer<typeof createWorkflowSchema>
 export type UpdateWorkflowPayload = z.infer<typeof updateWorkflowSchema>
 export type ListWorkflowsQuery = z.infer<typeof listQuerySchema>
+
+export interface WorkflowDashboard {
+    total: number
+    byStatus: Record<WorkflowStatus, number>
+    executions: { total: number; successRate: number }
+}
 
 export interface PaginatedWorkflows {
     items: Workflow[]
