@@ -1,8 +1,8 @@
 import { afterAll, describe, expect, it } from "vitest"
 import request from "supertest"
-import app from "../app.js"
-import { prisma } from "../config/db.js"
-import { AUTH_BASE_PATH } from "../helpers/authCookies.js"
+import app from "../../app.js"
+import { prisma } from "../../config/db.js"
+import { AUTH_BASE_PATH } from "../../helpers/authCookies.js"
 
 const EMAIL_PREFIX = `auth-test-${Date.now()}`
 const PASSWORD = "password123"
