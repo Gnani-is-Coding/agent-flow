@@ -15,6 +15,7 @@ async function login(req: Request, res: Response): Promise<void> {
 
 async function me(req: Request, res: Response): Promise<void> {
     if (!req.user) throw new HttpError(401, "Unauthorised")
+        
     const user = await Services.auth.me(req.user.id)
     res.status(200).send({ success: true, data: { user } })
 }
