@@ -5,6 +5,9 @@ const API_URL = process.env.API_URL ?? "http://localhost:3010";
 // same-origin proxy: no CORS in dev, auth cookies stay first-party
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    agentUpgrade: "security",
+  },
   turbopack: {
     rules: {
       "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" },

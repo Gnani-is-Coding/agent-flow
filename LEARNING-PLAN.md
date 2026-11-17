@@ -164,22 +164,22 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 ---
 
 <details>
-<summary><b>M5 — Workflow data model + CRUD</b></summary>
+<summary><b><s>M5 — Workflow data model + CRUD</s></b></summary>
 
 
 **Learn**
-- [ ] Graphs: node, edge, directed, DAG, cycle — this is the heart of the whole app
-- [ ] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in a JSONB column
-- [ ] Ownership checks (user A must never read user B's workflow)
-- [ ] Pagination, filtering, sorting with Prisma
-- [ ] SQL `COUNT` + `GROUP BY` (Prisma `groupBy`) for dashboard metrics
+- [x] Graphs: node, edge, directed, DAG, cycle — this is the heart of the whole app
+- [x] React Flow's node/edge shape (`id`, `type`, `position`, `data`; `source`, `target`) — store exactly this shape in a JSONB column
+- [x] Ownership checks (user A must never read user B's workflow)
+- [x] Pagination, filtering, sorting with Prisma
+- [x] SQL `COUNT` + `GROUP BY` (Prisma `groupBy`) for dashboard metrics
 
 **Build**
-- [ ] `Workflow` model: name, description, owner, status, trigger, nodes, edges, tags, version, lastExecutedAt
-- [ ] All `/api/workflows` routes except `generate` and `execute`
-- [ ] Version bump on update; duplicate resets version to 1
-- [ ] Graph validation: no cycles, edges point to real nodes, exactly one trigger
-- [ ] `GET /api/workflows/dashboard` metrics
+- [x] `Workflow` model: name, description, owner, status, trigger, nodes, edges, tags, version, lastExecutedAt
+- [x] All `/api/workflows` routes except `generate` and `execute`
+- [x] Version bump on update; duplicate resets version to 1
+- [x] Graph validation: no cycles, edges point to real nodes, exactly one trigger
+- [x] `GET /api/workflows/dashboard` metrics
 
 **Done when:** tests prove user B gets 404 on user A's workflow, and a workflow with a cycle is rejected.
 
@@ -433,7 +433,7 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 | M2 Postgres + Prisma | done |
 | M3 Auth | done |
 | M4 Next.js | done |
-| M5 Workflow CRUD | ☐ |
+| M5 Workflow CRUD | done |
 | M6 Canvas | ☐ |
 | M7 AI generation | ☐ |
 | M8 Execution engine | ☐ |

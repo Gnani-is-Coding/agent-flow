@@ -5,5 +5,8 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "dev": "bun run --filter '*' dev"
+  },
   "workspaces": ["server", "client"]
 }
