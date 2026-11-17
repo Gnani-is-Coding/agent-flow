@@ -11,7 +11,7 @@ api.interceptors.response.use((res) => res, async (error) => {
     const isUnAuthError = error.response?.status === 401
     const originalReq = error.config
 
-    if (!isUnAuthError || originalReq._retry || originalReq.url?.includes("/auth/rotate")) {
+    if (!isUnAuthError || originalReq._retry || originalReq.url?.includes("/auth/rotate") || originalReq.url?.includes("/auth/login")) {
         return Promise.reject(error)
     }
 

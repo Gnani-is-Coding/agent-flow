@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import type { Request, Response } from "express"
-import { requireRole } from "./requireRole.js"
-import type { AuthUser } from "../types/auth.types.js"
+import { requireRole } from "../../middlewares/requireRole.js"
+import type { AuthUser } from "../../types/auth.types.js"
 
 const run = (user: AuthUser | undefined): ReturnType<typeof vi.fn> => {
     const next = vi.fn()
