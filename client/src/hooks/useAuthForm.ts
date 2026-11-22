@@ -1,11 +1,10 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import type { z } from "zod";
 import { ROUTES } from "@/lib/routes";
 import { useAuth } from "@/store/authStore";
 import api from "@/lib/api";
 import { isAxiosError } from "axios";
-import { parse } from "path";
 
 type Values = Record<string, string>;
 type FieldErrors<T extends Values> = Partial<Record<keyof T, string>>;
@@ -37,10 +36,11 @@ export function useAuthForm<T extends Values>(schema: z.ZodType<unknown, T>, end
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<T>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { query } = useRouter()
 
   useEffect(() => {
-    if (hydrated && user) void Router.replace(ROUTES.dashboard);
-  }, [hydrated, user]);
+    if (hydrated && user) void Router.replace(typeof query.redirect === "string" ? query.redirect : ROUTES.dashboard);
+  }, [hydrated, user, query]);
 
   const bind = (field: keyof T) => ({
     value: values[field],
@@ -59,10 +59,10 @@ export function useAuthForm<T extends Values>(schema: z.ZodType<unknown, T>, end
     setFieldErrors({});
     setSubmitting(true);
 
-    try{
+    try {
       const data = await api.post(endpoint, parsed.data)
       setUser(data?.data.data.user)
-    } catch(e: unknown) {
+    } catch (e: unknown) {
       const message = isAxiosError(e) ? e.response?.data?.message : undefined
       setFormError(message ?? "Unable to call /login")
     } finally {

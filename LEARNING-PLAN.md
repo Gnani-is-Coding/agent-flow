@@ -14,7 +14,7 @@ Rules of the road:
 - [x] **Monorepo:** `client/` (Next.js) + `server/` (Express) in this repo. Spec's folder-structure section got mangled when pasted (line 130-137), so we define it ourselves in M1/M4.
 - [x] **Docker** for local Postgres (was MongoDB) + Redis.
 - [x] **Postgres + Prisma** instead of spec's MongoDB + Mongoose (data is relational; graph, snapshots, log metadata go in JSONB). No in-memory DB fallback.
-- [x] **Yarn (v1) workspaces** as package manager. No npm lockfiles.
+- [x] **Bun workspaces** as package manager (changed from Yarn 2026-11-17). Only `bun.lock`, no yarn or npm lockfiles.
 - [x] **v1 = Discord only.** Slack, Google Sheets, Gmail move to v2 (after M15).
 
 ---
@@ -142,11 +142,11 @@ This matters: you'll build the chain **by hand first** (M9), then learn LangGrap
 
 
 **Learn**
-- [ ] Next.js Pages Router: file-based routes, `_app.tsx`, dynamic routes `[id].tsx`
-- [ ] React 19 basics you need: state, effects, props, controlled forms
-- [ ] Tailwind: utility classes, dark mode
-- [ ] Zustand: store, selectors, `persist` middleware
-- [ ] Axios instance + interceptors (attach token, handle 401 globally)
+- [x] Next.js Pages Router: file-based routes, `_app.tsx`, dynamic routes `[id].tsx`
+- [x] React 19 basics you need: state, effects, props, controlled forms
+- [x] Tailwind: utility classes, dark mode
+- [x] Zustand: store, selectors, `persist` middleware
+- [x] Axios instance + interceptors (attach token, handle 401 globally)
 
 **Build**
 - [x] `lib/api.ts` (Axios + interceptors), `store/authStore.ts` (persisted)

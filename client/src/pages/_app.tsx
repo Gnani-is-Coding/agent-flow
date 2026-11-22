@@ -30,16 +30,17 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
   const redirectURL = router.asPath
 
-
   useEffect(() => {
     void useAuth.persist.rehydrate();
   }, []);
 
   useEffect(() => {
-    if (hydrated && !redirectURL.includes("/login")) {
-      void Router.replace(user ? redirectURL ?? router.asPath : `${ROUTES.login}?redirect=${redirectURL ?? "/"}`);
+    const isPublic = [ROUTES.login, ROUTES.register].some((route) => redirectURL.startsWith(route));
+    // asPath is the "[id]" template until isReady
+    if (router.isReady && hydrated && !user && !isPublic) {
+      void Router.replace(`${ROUTES.login}?redirect=${encodeURIComponent(redirectURL)}`);
     }
-  }, [hydrated, user, redirectURL]);
+  }, [router.isReady, hydrated, user, redirectURL]);
 
   return <Component {...pageProps} />;
 }

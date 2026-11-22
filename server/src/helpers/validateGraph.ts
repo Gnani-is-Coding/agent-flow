@@ -22,9 +22,10 @@ function assertNoCycle(nodeIds: Set<string>, edges: WorkflowEdge[]): void {
     for (const { source, target } of edges) next.set(source, [...(next.get(source) ?? []), target])
 
     const marks = new Map<string, Mark>()
-    const visit = (id: string): void => {
+    const visit = (id: string): void => { // DFS algo
         if (marks.get(id) === "visiting") throw new HttpError(400, `Workflow has a cycle through node ${id}`)
         if (marks.get(id) === "done") return
+        
         marks.set(id, "visiting")
         for (const target of next.get(id) ?? []) visit(target)
         marks.set(id, "done")
